@@ -1,0 +1,24 @@
+# IntelliJ / VS Code
+.idea/
+.vscode/
+
+# Angular
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/coverage/
+
+# Spring Boot
+backend/target/
+backend/build/
+backend/.mvn/
+
+# Logs
+*.log
+
+# Env
+.env
+
+# OS
+.DS_Store
+Thumbs.db
