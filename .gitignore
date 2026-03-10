@@ -1,25 +1,44 @@
+# IntelliJ / VS Code
+.idea/
+.vscode/
+
+# Angular
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/coverage/
+
+# Spring Boot
+backend/target/
+backend/build/
+backend/.mvn/
+
+# Logs
+*.log
+
+# Env
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Maven
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### IntelliJ IDEA ###
-.idea
-*.iws
+# IDE files
 *.iml
 *.ipr
+*.iws
+.classpath
+.project
+.settings
 
-### NetBeans ###
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -28,6 +47,3 @@ target/
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
-
-### VS Code ###
-.vscode/
