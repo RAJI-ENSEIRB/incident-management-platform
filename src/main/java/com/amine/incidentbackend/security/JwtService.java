@@ -39,8 +39,29 @@ public class JwtService{
                     .subject(userDetails.getUsername())
                     .issuedAt(now)
                     .expiration(expiryDate)
+                    .signWith(key)
                     .claim("roles",userdetails)
     }
-    public
+    public String extractUsername(String token){
+        return extractAllClaims(token).getSubject()
+    }
+
+    public boolean isTokenValid(String token){
+        String username = extractUsername(token);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+
+    }
+
+    public boolean isTokenExpired(String token){
+        return extractAllClaims(token)getExpiration().before(new Date());
+    }
+
+    public Claims extractAllClaims(String token){
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
 
 }
