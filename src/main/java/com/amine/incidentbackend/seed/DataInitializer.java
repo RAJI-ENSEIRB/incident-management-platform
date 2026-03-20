@@ -1,25 +1,31 @@
 package com.amine.incidentbackend.seed;
 
+import com.amine.incidentbackend.entity.Category;
 import com.amine.incidentbackend.entity.Role;
 import com.amine.incidentbackend.entity.User;
 import com.amine.incidentbackend.enums.RoleName;
+import com.amine.incidentbackend.repository.CategoryRepository;
 import com.amine.incidentbackend.repository.RoleRepository;
 import com.amine.incidentbackend.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
 
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
     private final PasswordEncoder passwordEncoder;
 
-    
-    public DataInitializer(RoleRepository roleRepository, UserRepository userRepository,PasswordEncoder passwordEncoder) {
+    public DataInitializer(RoleRepository roleRepository,
+                           UserRepository userRepository,
+                           CategoryRepository categoryRepository,
+                           PasswordEncoder passwordEncoder) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
+        this.categoryRepository = categoryRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -29,6 +35,11 @@ public class DataInitializer implements CommandLineRunner {
         createRoleIfNotExists(RoleName.TECHNICIAN);
         createRoleIfNotExists(RoleName.MANAGER);
         createRoleIfNotExists(RoleName.ADMIN);
+
+        createCategoryIfNotExists("Network", "Network incidents");
+        createCategoryIfNotExists("System", "System incidents");
+        createCategoryIfNotExists("Application", "Application incidents");
+        createCategoryIfNotExists("Hardware", "Hardware incidents");
 
         if (!userRepository.existsByEmail("admin@incident.local")) {
             Role adminRole = roleRepository.findByName(RoleName.ADMIN)
@@ -51,6 +62,13 @@ public class DataInitializer implements CommandLineRunner {
         if (!roleRepository.existsByName(roleName)) {
             roleRepository.save(new Role(roleName));
             System.out.println("Role created: " + roleName);
+        }
+    }
+
+    private void createCategoryIfNotExists(String name, String description) {
+        if (!categoryRepository.existsByName(name)) {
+            categoryRepository.save(new Category(name, description));
+            System.out.println("Category created: " + name);
         }
     }
 }
