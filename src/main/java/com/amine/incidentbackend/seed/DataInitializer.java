@@ -56,6 +56,22 @@ public class DataInitializer implements CommandLineRunner {
             userRepository.save(admin);
             System.out.println("Admin user created: admin@incident.local / admin123");
         }
+
+        if (!userRepository.existsByEmail("tech@incident.local")) {
+            Role technicianRole = roleRepository.findByName(RoleName.TECHNICIAN)
+                    .orElseThrow(() -> new RuntimeException("TECHNICIAN role not found"));
+
+            User technician = new User();
+            technician.setFirstName("Tech");
+            technician.setLastName("Support");
+            technician.setEmail("tech@incident.local");
+            technician.setPassword(passwordEncoder.encode("tech123"));
+            technician.setActive(true);
+            technician.setRole(technicianRole);
+
+            userRepository.save(technician);
+            System.out.println("Technician user created: tech@incident.local / tech123");
+        }
     }
 
     private void createRoleIfNotExists(RoleName roleName) {
