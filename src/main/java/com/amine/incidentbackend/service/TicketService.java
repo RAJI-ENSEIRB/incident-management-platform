@@ -73,8 +73,8 @@ public class TicketService {
     }
 
     public TicketResponse updateTicketStatus(Long ticketId,
-                                         UpdateTicketStatusRequest request,
-                                         Authentication authentication) {
+                                             UpdateTicketStatusRequest request,
+                                             Authentication authentication) {
         String email = authentication.getName();
 
         User changedBy = userRepository.findByEmail(email)
@@ -115,10 +115,15 @@ public class TicketService {
                 .orElseThrow(() -> new RuntimeException("Ticket not found"));
 
         User technician = userRepository.findById(request.getTechnicianId())
-                .orElseThrow(() -> new RuntimeException("Technician not found"));
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + request.getTechnicianId()));
 
-        if (technician.getRole() == null || technician.getRole().getName() != RoleName.TECHNICIAN) {
-            throw new RuntimeException("Selected user is not a technician");
+        if (technician.getRole() == null ||
+                !RoleName.TECHNICIAN.equals(technician.getRole().getName())) {
+            throw new RuntimeException(
+                "User " + technician.getEmail() + " has role "
+                + (technician.getRole() != null ? technician.getRole().getName() : "null")
+                + " — only TECHNICIAN can be assigned"
+            );
         }
 
         ticket.setAssignedTechnician(technician);
