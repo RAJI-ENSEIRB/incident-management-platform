@@ -1,0 +1,83 @@
+<div class="ticket-list-page">
+  <div class="ticket-list-header">
+    <h1>Tickets</h1>
+  
+    <div class="header-actions">
+      <button class="secondary-button" (click)="goToDashboard()">Dashboard</button>
+      <button class="logout-button" (click)="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="filters-card">
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label for="status">Status</label>
+        <select
+          id="status"
+          [(ngModel)]="selectedStatus"
+          (ngModelChange)="applyFilters()"
+        >
+          <option value="">All statuses</option>
+          <option *ngFor="let status of availableStatuses" [value]="status">
+            {{ status }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="priority">Priority</label>
+        <select
+          id="priority"
+          [(ngModel)]="selectedPriority"
+          (ngModelChange)="applyFilters()"
+        >
+          <option value="">All priorities</option>
+          <option *ngFor="let priority of availablePriorities" [value]="priority">
+            {{ priority }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group search-group">
+        <label for="search">Search</label>
+        <input
+          id="search"
+          type="text"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="applyFilters()"
+          placeholder="Search by title, description, category..."
+        />
+      </div>
+
+      <div class="filter-actions">
+        <button class="clear-button" (click)="clearFilters()">Clear filters</button>
+      </div>
+    </div>
+  </div>
+
+  <p *ngIf="isLoading">Loading tickets...</p>
+
+  <p class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </p>
+
+  <div *ngIf="!isLoading && filteredTickets.length === 0">
+    No tickets found.
+  </div>
+
+  <div class="ticket-grid" *ngIf="!isLoading && filteredTickets.length > 0">
+    <a
+      class="ticket-card"
+      *ngFor="let ticket of filteredTickets"
+      [routerLink]="['/tickets', ticket.id]"
+    >
+      <h3>{{ ticket.title }}</h3>
+      <p><strong>Status:</strong> {{ ticket.status }}</p>
+      <p><strong>Priority:</strong> {{ ticket.priority }}</p>
+      <p><strong>Category:</strong> {{ ticket.categoryName }}</p>
+      <p><strong>Creator:</strong> {{ ticket.creatorEmail }}</p>
+      <p><strong>Technician:</strong> {{ ticket.assignedTechnicianEmail || 'Not assigned' }}</p>
+      <p><strong>Description:</strong> {{ ticket.description }}</p>
+    </a>
+  </div>
+</div>

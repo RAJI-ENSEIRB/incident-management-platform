@@ -1,0 +1,138 @@
+<div class="ticket-detail-page">
+  <div class="top-bar">
+    <a routerLink="/tickets" class="back-link">← Back to tickets</a>
+    <button class="logout-button" (click)="logout()">Logout</button>
+  </div>
+
+  <p *ngIf="isLoading">Loading ticket...</p>
+
+  <p class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </p>
+
+  <div class="ticket-detail-card" *ngIf="!isLoading && ticket">
+    <h1>{{ ticket.title }}</h1>
+
+    <p><strong>Description:</strong> {{ ticket.description }}</p>
+    <p><strong>Status:</strong> {{ ticket.status }}</p>
+    <p><strong>Priority:</strong> {{ ticket.priority }}</p>
+    <p><strong>Category:</strong> {{ ticket.categoryName }}</p>
+    <p><strong>Creator:</strong> {{ ticket.creatorEmail }}</p>
+    <p><strong>Assigned technician:</strong> {{ ticket.assignedTechnicianEmail || 'Not assigned' }}</p>
+    <p><strong>Created at:</strong> {{ ticket.createdAt }}</p>
+    <p><strong>Updated at:</strong> {{ ticket.updatedAt }}</p>
+  </div>
+
+  <div class="detail-card" *ngIf="ticket">
+    <h2>Update Status</h2>
+
+    <div class="action-row">
+      <select [(ngModel)]="selectedStatus">
+        <option *ngFor="let status of availableStatuses" [value]="status">
+          {{ status }}
+        </option>
+      </select>
+
+      <button type="button" (click)="submitStatusUpdate()" [disabled]="isUpdatingStatus">
+        {{ isUpdatingStatus ? 'Updating...' : 'Update Status' }}
+      </button>
+    </div>
+
+    <p class="error-message" *ngIf="statusErrorMessage">
+      {{ statusErrorMessage }}
+    </p>
+  </div>
+
+  <div class="detail-card" *ngIf="ticket">
+    <h2>Assign Technician</h2>
+
+    <p *ngIf="isTechniciansLoading">Loading technicians...</p>
+
+    <div class="action-row" *ngIf="!isTechniciansLoading">
+      <select [(ngModel)]="selectedTechnicianId">
+        <option [ngValue]="null">Select technician</option>
+        <option *ngFor="let technician of technicians" [ngValue]="technician.id">
+          {{ technician.firstName }} {{ technician.lastName }} ({{ technician.email }})
+        </option>
+      </select>
+
+      <button type="button" (click)="submitTechnicianAssignment()" [disabled]="isAssigningTechnician">
+        {{ isAssigningTechnician ? 'Assigning...' : 'Assign Technician' }}
+      </button>
+    </div>
+
+    <p class="error-message" *ngIf="techniciansErrorMessage">
+      {{ techniciansErrorMessage }}
+    </p>
+
+    <p class="error-message" *ngIf="assignErrorMessage">
+      {{ assignErrorMessage }}
+    </p>
+  </div>
+
+  <div class="detail-card" *ngIf="ticket">
+    <h2>Add Comment</h2>
+
+    <textarea
+      [(ngModel)]="newComment"
+      rows="4"
+      placeholder="Write your comment..."
+    ></textarea>
+
+    <div class="comment-actions">
+      <button type="button" (click)="submitComment()" [disabled]="isSubmittingComment">
+        {{ isSubmittingComment ? 'Posting...' : 'Add Comment' }}
+      </button>
+    </div>
+
+    <p class="error-message" *ngIf="commentErrorMessage">
+      {{ commentErrorMessage }}
+    </p>
+  </div>
+
+  <div class="detail-sections" *ngIf="ticket">
+    <div class="detail-card">
+      <h2>Comments</h2>
+
+      <p *ngIf="isCommentsLoading">Loading comments...</p>
+
+      <p class="error-message" *ngIf="commentsErrorMessage">
+        {{ commentsErrorMessage }}
+      </p>
+
+      <p *ngIf="!isCommentsLoading && comments.length === 0">
+        No comments yet.
+      </p>
+
+      <div class="comment-item" *ngFor="let comment of comments">
+        <p class="comment-content">{{ comment.content }}</p>
+        <p class="comment-meta">
+          <strong>{{ comment.authorEmail }}</strong> — {{ comment.createdAt }}
+        </p>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <h2>Status History</h2>
+
+      <p *ngIf="isHistoryLoading">Loading history...</p>
+
+      <p class="error-message" *ngIf="historyErrorMessage">
+        {{ historyErrorMessage }}
+      </p>
+
+      <p *ngIf="!isHistoryLoading && history.length === 0">
+        No history yet.
+      </p>
+
+      <div class="history-item" *ngFor="let item of history">
+        <p class="history-content">
+          <strong>{{ item.oldStatus }}</strong> → <strong>{{ item.newStatus }}</strong>
+        </p>
+        <p class="history-meta">
+          <strong>{{ item.changedByEmail }}</strong> — {{ item.changedAt }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

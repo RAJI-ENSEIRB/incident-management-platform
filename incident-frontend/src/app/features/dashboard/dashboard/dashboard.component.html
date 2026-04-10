@@ -1,0 +1,74 @@
+<div class="dashboard-page">
+    <div class="dashboard-header">
+      <h1>Dashboard</h1>
+  
+      <div class="header-actions">
+        <button class="secondary-button" (click)="goToTickets()">Go to Tickets</button>
+        <button class="logout-button" (click)="logout()">Logout</button>
+      </div>
+    </div>
+  
+    <p *ngIf="isLoading">Loading dashboard...</p>
+  
+    <p class="error-message" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </p>
+  
+    <div class="dashboard-content" *ngIf="!isLoading && !errorMessage">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h2>Total Tickets</h2>
+          <p class="stat-value">{{ totalTickets }}</p>
+        </div>
+  
+        <div class="stat-card">
+          <h2>Open</h2>
+          <p class="stat-value">{{ openCount }}</p>
+        </div>
+  
+        <div class="stat-card">
+          <h2>In Progress</h2>
+          <p class="stat-value">{{ inProgressCount }}</p>
+        </div>
+  
+        <div class="stat-card">
+          <h2>Waiting</h2>
+          <p class="stat-value">{{ waitingCount }}</p>
+        </div>
+  
+        <div class="stat-card">
+          <h2>Resolved</h2>
+          <p class="stat-value">{{ resolvedCount }}</p>
+        </div>
+  
+        <div class="stat-card">
+          <h2>Closed</h2>
+          <p class="stat-value">{{ closedCount }}</p>
+        </div>
+  
+        <div class="stat-card">
+          <h2>High Priority</h2>
+          <p class="stat-value">{{ highCount }}</p>
+        </div>
+  
+        <div class="stat-card">
+          <h2>Critical Priority</h2>
+          <p class="stat-value">{{ criticalCount }}</p>
+        </div>
+  
+        <div class="stat-card">
+          <h2>Unassigned</h2>
+          <p class="stat-value">{{ unassignedCount }}</p>
+        </div>
+      </div>
+  
+      <div class="summary-card">
+        <h2>Quick Summary</h2>
+        <p>Total tickets in the system: <strong>{{ totalTickets }}</strong></p>
+        <p>Tickets currently open: <strong>{{ openCount }}</strong></p>
+        <p>Tickets in progress: <strong>{{ inProgressCount }}</strong></p>
+        <p>Critical tickets: <strong>{{ criticalCount }}</strong></p>
+        <p>Tickets not yet assigned: <strong>{{ unassignedCount }}</strong></p>
+      </div>
+    </div>
+  </div>
