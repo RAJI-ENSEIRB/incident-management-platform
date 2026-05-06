@@ -1,0 +1,123 @@
+.ticket-page {
+    padding: 2rem;
+    background: #f5f7fb;
+    min-height: 100vh;
+  }
+  
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .header-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  
+  .logout-button,
+  .secondary-button {
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  
+  .ticket-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+  }
+  
+  .ticket-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    cursor: pointer;
+  }
+  
+  .ticket-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  }
+  
+  .ticket-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .ticket-header h3 {
+    margin: 0;
+  }
+  
+  .badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .status-badge,
+  .priority-badge {
+    padding: 0.3rem 0.6rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+  }
+  
+  .OPEN { background: #1976d2; }
+  .IN_PROGRESS { background: #fbc02d; color: black; }
+  .WAITING { background: #9e9e9e; }
+  .RESOLVED { background: #4caf50; }
+  .CLOSED { background: #212121; }
+  
+  .LOW { background: #43a047; }
+  .MEDIUM { background: #1e88e5; }
+  .HIGH { background: #fb8c00; }
+  .CRITICAL { background: #e53935; }
+  
+  .description {
+    color: #555;
+    margin: 1rem 0;
+  }
+  
+  .ticket-meta {
+    display: grid;
+    gap: 0.6rem;
+  }
+  
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .meta-label {
+    font-size: 0.8rem;
+    color: #777;
+  }
+  
+  .meta-value {
+    font-weight: 600;
+  }
+  
+  .error-message {
+    color: #c62828;
+  }
+  
+  .empty-state {
+    background: white;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  }

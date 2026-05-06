@@ -1,0 +1,80 @@
+<div class="ticket-create-page">
+    <div class="top-bar">
+      <a routerLink="/tickets" class="back-link">← Back to tickets</a>
+    </div>
+  
+    <div class="ticket-create-card">
+      <h1>Create Ticket</h1>
+  
+      <p class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </p>
+  
+      <p class="error-message" *ngIf="categoriesErrorMessage">
+        {{ categoriesErrorMessage }}
+      </p>
+  
+      <form (ngSubmit)="submit()">
+        <div class="form-group">
+          <label for="title">Title</label>
+          <input
+            id="title"
+            type="text"
+            name="title"
+            [(ngModel)]="form.title"
+            placeholder="Enter ticket title"
+          />
+        </div>
+  
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            rows="5"
+            [(ngModel)]="form.description"
+            placeholder="Describe the issue"
+          ></textarea>
+        </div>
+  
+        <div class="form-row">
+          <div class="form-group">
+            <label for="priority">Priority</label>
+            <select
+              id="priority"
+              name="priority"
+              [(ngModel)]="form.priority"
+            >
+              <option *ngFor="let priority of priorities" [value]="priority">
+                {{ priority }}
+              </option>
+            </select>
+          </div>
+  
+          <div class="form-group">
+            <label for="category">Category</label>
+            <select
+              id="category"
+              name="category"
+              [(ngModel)]="form.categoryId"
+              [disabled]="isLoadingCategories"
+            >
+              <option *ngFor="let category of categories" [ngValue]="category.id">
+                {{ category.name }}
+              </option>
+            </select>
+          </div>
+        </div>
+  
+        <div class="form-actions">
+          <button type="button" class="secondary-button" (click)="cancel()">
+            Cancel
+          </button>
+  
+          <button type="submit" [disabled]="isSubmitting || isLoadingCategories">
+            {{ isSubmitting ? 'Creating...' : 'Create Ticket' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>

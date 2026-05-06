@@ -9,4 +9,6 @@ export interface Ticket {
     categoryName: string;
     createdAt: string;
     updatedAt: string;
+    dueDate: string;
+    slaBreached: boolean;
   }

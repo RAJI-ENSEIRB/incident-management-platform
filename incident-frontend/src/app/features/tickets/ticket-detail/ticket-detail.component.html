@@ -19,11 +19,20 @@
     <p><strong>Category:</strong> {{ ticket.categoryName }}</p>
     <p><strong>Creator:</strong> {{ ticket.creatorEmail }}</p>
     <p><strong>Assigned technician:</strong> {{ ticket.assignedTechnicianEmail || 'Not assigned' }}</p>
-    <p><strong>Created at:</strong> {{ ticket.createdAt }}</p>
-    <p><strong>Updated at:</strong> {{ ticket.updatedAt }}</p>
+    <p><strong>Created at:</strong> {{ ticket.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+    <p><strong>Updated at:</strong> {{ ticket.updatedAt | date:'dd/MM/yyyy HH:mm' }}</p>
+
+    <div class="sla-info" [class.breached]="ticket.slaBreached">
+      <span *ngIf="!ticket.slaBreached">
+        Deadline SLA : {{ ticket.dueDate | date:'dd/MM/yyyy HH:mm' }}
+      </span>
+      <span *ngIf="ticket.slaBreached">
+        ⚠ SLA dépassé — deadline était le {{ ticket.dueDate | date:'dd/MM/yyyy HH:mm' }}
+      </span>
+    </div>
   </div>
 
-  <div class="detail-card" *ngIf="ticket">
+  <div class="detail-card" *ngIf="ticket && authService.canUpdateStatus()">
     <h2>Update Status</h2>
 
     <div class="action-row">
@@ -43,7 +52,7 @@
     </p>
   </div>
 
-  <div class="detail-card" *ngIf="ticket">
+  <div class="detail-card" *ngIf="ticket && authService.canAssignTechnician()">
     <h2>Assign Technician</h2>
 
     <p *ngIf="isTechniciansLoading">Loading technicians...</p>
@@ -70,7 +79,7 @@
     </p>
   </div>
 
-  <div class="detail-card" *ngIf="ticket">
+  <div class="detail-card" *ngIf="ticket && authService.canComment()">
     <h2>Add Comment</h2>
 
     <textarea
@@ -89,6 +98,50 @@
       {{ commentErrorMessage }}
     </p>
   </div>
+
+
+  <div class="detail-card" *ngIf="ticket">
+    <h2>Attachments</h2>
+  
+    <div class="attachment-upload">
+      <input type="file" (change)="onFileSelected($event)" />
+      <button type="button" (click)="uploadAttachment()" [disabled]="isUploadingAttachment">
+        {{ isUploadingAttachment ? 'Uploading...' : 'Upload File' }}
+      </button>
+    </div>
+  
+    <p class="error-message" *ngIf="attachmentUploadErrorMessage">
+      {{ attachmentUploadErrorMessage }}
+    </p>
+  
+    <p *ngIf="isAttachmentsLoading">Loading attachments...</p>
+  
+    <p class="error-message" *ngIf="attachmentsErrorMessage">
+      {{ attachmentsErrorMessage }}
+    </p>
+  
+    <p *ngIf="!isAttachmentsLoading && attachments.length === 0">
+      No attachments yet.
+    </p>
+  
+    <div class="attachment-item" *ngFor="let attachment of attachments">
+      <div class="attachment-info">
+        <p><strong>{{ attachment.fileName }}</strong></p>
+        <p>{{ attachment.fileType }} — {{ attachment.fileSize }} bytes</p>
+      </div>
+  
+      <button
+        type="button"
+        class="download-link"
+        (click)="downloadAttachment(attachment)"
+      >
+        Download
+      </button>
+    </div>
+  </div>
+
+
+
 
   <div class="detail-sections" *ngIf="ticket">
     <div class="detail-card">

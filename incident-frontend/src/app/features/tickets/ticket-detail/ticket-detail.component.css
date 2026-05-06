@@ -119,3 +119,62 @@ button:disabled {
 .error-message {
   color: #c62828;
 }
+
+
+
+.attachment-upload {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.attachment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+.attachment-item:first-of-type {
+  border-top: none;
+}
+
+.attachment-info p {
+  margin: 0.25rem 0;
+}
+
+.download-link {
+  text-decoration: none;
+  font-weight: 600;
+  color: #1976d2;
+}
+
+
+
+.download-link {
+  background: none;
+  border: none;
+  color: #1976d2;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.sla-info {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.sla-info.breached {
+  background-color: #ffebee;
+  color: #c62828;
+}

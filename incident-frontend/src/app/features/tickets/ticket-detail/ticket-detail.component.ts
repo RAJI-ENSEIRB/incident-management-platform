@@ -5,10 +5,12 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TicketService } from '../../../core/services/ticket.service';
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { Ticket } from '../../../core/models/ticket.model';
 import { Comment } from '../../../core/models/comment.model';
 import { StatusHistory } from '../../../core/models/status-history.model';
 import { User } from '../../../core/models/user.model';
+import { Attachment } from '../../../core/models/attachment.model';
 
 @Component({
   selector: 'app-ticket-detail',
@@ -22,16 +24,21 @@ export class TicketDetailComponent implements OnInit {
   comments: Comment[] = [];
   history: StatusHistory[] = [];
   technicians: User[] = [];
+  attachments: Attachment[] = [];
 
   isLoading = false;
   isCommentsLoading = false;
   isHistoryLoading = false;
   isTechniciansLoading = false;
+  isAttachmentsLoading = false;
+  isUploadingAttachment = false;
 
   errorMessage = '';
   commentsErrorMessage = '';
   historyErrorMessage = '';
   techniciansErrorMessage = '';
+  attachmentsErrorMessage = '';
+  attachmentUploadErrorMessage = '';
 
   newComment = '';
   commentErrorMessage = '';
@@ -45,6 +52,8 @@ export class TicketDetailComponent implements OnInit {
   assignErrorMessage = '';
   isAssigningTechnician = false;
 
+  selectedFile: File | null = null;
+
   private ticketId: number | null = null;
 
   readonly availableStatuses = [
@@ -56,11 +65,12 @@ export class TicketDetailComponent implements OnInit {
   ];
 
   constructor(
+    public authService: AuthService,
     private route: ActivatedRoute,
     private router: Router,
     private ticketService: TicketService,
     private userService: UserService,
-    private authService: AuthService
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -83,7 +93,11 @@ export class TicketDetailComponent implements OnInit {
     this.loadTicket(ticketId);
     this.loadComments(ticketId);
     this.loadHistory(ticketId);
-    this.loadTechnicians();
+    this.loadAttachments(ticketId);
+
+    if (this.authService.canAssignTechnician()) {
+      this.loadTechnicians();
+    }
   }
 
   loadTicket(ticketId: number): void {
@@ -98,6 +112,7 @@ export class TicketDetailComponent implements OnInit {
       },
       error: () => {
         this.errorMessage = 'Ticket not found.';
+        this.notificationService.error('Ticket not found.');
         this.isLoading = false;
       }
     });
@@ -148,13 +163,74 @@ export class TicketDetailComponent implements OnInit {
       },
       error: () => {
         this.techniciansErrorMessage = 'Failed to load technicians.';
+        this.notificationService.error('Failed to load technicians.');
         this.isTechniciansLoading = false;
       }
     });
   }
 
-  submitComment(): void {
+  loadAttachments(ticketId: number): void {
+    this.isAttachmentsLoading = true;
+    this.attachmentsErrorMessage = '';
+
+    this.ticketService.getAttachments(ticketId).subscribe({
+      next: (data) => {
+        this.attachments = data;
+        this.isAttachmentsLoading = false;
+      },
+      error: () => {
+        this.attachmentsErrorMessage = 'Failed to load attachments.';
+        this.isAttachmentsLoading = false;
+      }
+    });
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+      this.attachmentUploadErrorMessage = '';
+    }
+  }
+
+  uploadAttachment(): void {
     if (!this.ticketId) {
+      return;
+    }
+
+    if (!this.selectedFile) {
+      this.attachmentUploadErrorMessage = 'Please select a file.';
+      this.notificationService.error('Please select a file.');
+      return;
+    }
+
+    this.isUploadingAttachment = true;
+    this.attachmentUploadErrorMessage = '';
+
+    this.ticketService.uploadAttachment(this.ticketId, this.selectedFile).subscribe({
+      next: () => {
+        this.selectedFile = null;
+        this.isUploadingAttachment = false;
+        this.loadAttachments(this.ticketId!);
+        this.notificationService.success('Attachment uploaded successfully.');
+      },
+      error: (error) => {
+        this.attachmentUploadErrorMessage =
+          error?.error?.message || 'Failed to upload attachment.';
+        this.notificationService.error(
+          error?.error?.message || 'Failed to upload attachment.'
+        );
+        this.isUploadingAttachment = false;
+      }
+    });
+  }
+
+  getDownloadUrl(attachmentId: number): string {
+    return this.ticketService.getAttachmentDownloadUrl(attachmentId);
+  }
+
+  submitComment(): void {
+    if (!this.ticketId || !this.authService.canComment()) {
       return;
     }
 
@@ -162,6 +238,7 @@ export class TicketDetailComponent implements OnInit {
 
     if (!this.newComment.trim()) {
       this.commentErrorMessage = 'Comment content is required.';
+      this.notificationService.error('Comment content is required.');
       return;
     }
 
@@ -172,16 +249,18 @@ export class TicketDetailComponent implements OnInit {
         this.newComment = '';
         this.isSubmittingComment = false;
         this.loadComments(this.ticketId!);
+        this.notificationService.success('Comment added successfully.');
       },
       error: () => {
         this.commentErrorMessage = 'Failed to add comment.';
+        this.notificationService.error('Failed to add comment.');
         this.isSubmittingComment = false;
       }
     });
   }
 
   submitStatusUpdate(): void {
-    if (!this.ticketId || !this.selectedStatus) {
+    if (!this.ticketId || !this.selectedStatus || !this.authService.canUpdateStatus()) {
       return;
     }
 
@@ -193,17 +272,23 @@ export class TicketDetailComponent implements OnInit {
         this.ticket = updatedTicket;
         this.isUpdatingStatus = false;
         this.loadHistory(this.ticketId!);
+        this.notificationService.success('Status updated successfully.');
       },
-      error: () => {
-        this.statusErrorMessage = 'Failed to update status.';
+      error: (error) => {
+        this.statusErrorMessage =
+          error?.error?.message || 'Failed to update status.';
+        this.notificationService.error(
+          error?.error?.message || 'Failed to update status.'
+        );
         this.isUpdatingStatus = false;
       }
     });
   }
 
   submitTechnicianAssignment(): void {
-    if (!this.ticketId || !this.selectedTechnicianId) {
+    if (!this.ticketId || !this.selectedTechnicianId || !this.authService.canAssignTechnician()) {
       this.assignErrorMessage = 'Please select a technician.';
+      this.notificationService.error('Please select a technician.');
       return;
     }
 
@@ -214,10 +299,32 @@ export class TicketDetailComponent implements OnInit {
       next: (updatedTicket) => {
         this.ticket = updatedTicket;
         this.isAssigningTechnician = false;
+        this.notificationService.success('Technician assigned successfully.');
       },
       error: () => {
         this.assignErrorMessage = 'Failed to assign technician.';
+        this.notificationService.error('Failed to assign technician.');
         this.isAssigningTechnician = false;
+      }
+    });
+  }
+
+
+
+
+
+  downloadAttachment(attachment: Attachment): void {
+    this.ticketService.downloadAttachment(attachment.id).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = attachment.fileName;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.notificationService.error('Failed to download attachment.');
       }
     });
   }

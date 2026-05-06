@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { LoginRequest } from '../../../core/models/login-request.model';
 
 @Component({
@@ -23,6 +24,7 @@ export class LoginComponent {
 
   constructor(
     private authService: AuthService,
+    private notificationService: NotificationService,
     private router: Router
   ) {}
 
@@ -31,6 +33,7 @@ export class LoginComponent {
 
     if (!this.credentials.email || !this.credentials.password) {
       this.errorMessage = 'Email and password are required.';
+      this.notificationService.error('Email and password are required.');
       return;
     }
 
@@ -39,11 +42,13 @@ export class LoginComponent {
     this.authService.login(this.credentials).subscribe({
       next: () => {
         this.isLoading = false;
+        this.notificationService.success('Login successful.');
         this.router.navigate(['/tickets']);
       },
       error: () => {
         this.isLoading = false;
         this.errorMessage = 'Email or password is incorrect.';
+        this.notificationService.error('Email or password is incorrect.');
       }
     });
   }

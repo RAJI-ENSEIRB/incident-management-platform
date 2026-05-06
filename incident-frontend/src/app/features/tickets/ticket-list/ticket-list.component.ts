@@ -5,6 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { TicketService } from '../../../core/services/ticket.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Ticket } from '../../../core/models/ticket.model';
+import { PagedResponse } from '../../../core/models/paged-response.model';
 
 @Component({
   selector: 'app-ticket-list',
@@ -15,6 +16,7 @@ import { Ticket } from '../../../core/models/ticket.model';
 })
 export class TicketListComponent implements OnInit {
   tickets: Ticket[] = [];
+  visibleTickets: Ticket[] = [];
   filteredTickets: Ticket[] = [];
 
   isLoading = false;
@@ -23,6 +25,13 @@ export class TicketListComponent implements OnInit {
   selectedStatus = '';
   selectedPriority = '';
   searchTerm = '';
+
+  currentPage = 0;
+  pageSize = 5;
+  totalPages = 0;
+  totalElements = 0;
+  isFirst = true;
+  isLast = true;
 
   readonly availableStatuses = [
     'OPEN',
@@ -39,9 +48,11 @@ export class TicketListComponent implements OnInit {
     'CRITICAL'
   ];
 
+  readonly pageSizes = [5, 10, 20];
+
   constructor(
+    public authService: AuthService,
     private ticketService: TicketService,
-    private authService: AuthService,
     private router: Router
   ) {}
 
@@ -53,9 +64,15 @@ export class TicketListComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.ticketService.getAllTickets().subscribe({
-      next: (data) => {
-        this.tickets = data;
+    this.ticketService.getAllTickets(this.currentPage, this.pageSize).subscribe({
+      next: (response: PagedResponse<Ticket>) => {
+        this.tickets = response.content;
+        this.totalPages = response.totalPages;
+        this.totalElements = response.totalElements;
+        this.isFirst = response.first;
+        this.isLast = response.last;
+
+        this.applyRoleVisibility();
         this.applyFilters();
         this.isLoading = false;
       },
@@ -66,10 +83,36 @@ export class TicketListComponent implements OnInit {
     });
   }
 
+  applyRoleVisibility(): void {
+    const email = this.authService.getUserEmail();
+    const role = this.authService.getUserRole();
+
+    if (role === 'ADMIN') {
+      this.visibleTickets = [...this.tickets];
+      return;
+    }
+
+    if (role === 'TECHNICIAN') {
+      this.visibleTickets = this.tickets.filter(
+        ticket => ticket.assignedTechnicianEmail === email
+      );
+      return;
+    }
+
+    if (role === 'USER') {
+      this.visibleTickets = this.tickets.filter(
+        ticket => ticket.creatorEmail === email
+      );
+      return;
+    }
+
+    this.visibleTickets = [];
+  }
+
   applyFilters(): void {
     const term = this.searchTerm.trim().toLowerCase();
 
-    this.filteredTickets = this.tickets.filter((ticket) => {
+    this.filteredTickets = this.visibleTickets.filter((ticket) => {
       const matchesStatus =
         !this.selectedStatus || ticket.status === this.selectedStatus;
 
@@ -95,8 +138,31 @@ export class TicketListComponent implements OnInit {
     this.applyFilters();
   }
 
+  previousPage(): void {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.loadTickets();
+    }
+  }
+
+  nextPage(): void {
+    if (!this.isLast) {
+      this.currentPage++;
+      this.loadTickets();
+    }
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 0;
+    this.loadTickets();
+  }
+
   goToDashboard(): void {
     this.router.navigate(['/dashboard']);
+  }
+
+  goToCreateTicket(): void {
+    this.router.navigate(['/tickets/new']);
   }
 
   logout(): void {

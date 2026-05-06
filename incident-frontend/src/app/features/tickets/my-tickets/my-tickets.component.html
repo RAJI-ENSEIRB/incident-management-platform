@@ -1,0 +1,58 @@
+<div class="ticket-page">
+    <div class="page-header">
+      <h1>My Tickets</h1>
+  
+      <div class="header-actions">
+        <button class="secondary-button" (click)="goToTickets()">All Tickets</button>
+        <button class="logout-button" (click)="logout()">Logout</button>
+      </div>
+    </div>
+  
+    <p *ngIf="isLoading">Loading your tickets...</p>
+  
+    <p class="error-message" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </p>
+  
+    <div *ngIf="!isLoading && tickets.length === 0" class="empty-state">
+      <p>No tickets found.</p>
+    </div>
+  
+    <div class="ticket-grid" *ngIf="!isLoading && tickets.length > 0">
+      <div
+        class="ticket-card"
+        *ngFor="let ticket of tickets"
+        [routerLink]="['/tickets', ticket.id]"
+      >
+        <div class="ticket-header">
+          <h3>{{ ticket.title }}</h3>
+  
+          <div class="badges">
+            <span class="status-badge" [ngClass]="ticket.status">
+              {{ ticket.status }}
+            </span>
+  
+            <span class="priority-badge" [ngClass]="ticket.priority">
+              {{ ticket.priority }}
+            </span>
+          </div>
+        </div>
+  
+        <div class="ticket-body">
+          <p class="description">{{ ticket.description }}</p>
+        </div>
+  
+        <div class="ticket-meta">
+          <div class="meta-item">
+            <span class="meta-label">Category</span>
+            <span class="meta-value">{{ ticket.categoryName }}</span>
+          </div>
+  
+          <div class="meta-item">
+            <span class="meta-label">Technician</span>
+            <span class="meta-value">{{ ticket.assignedTechnicianEmail || 'Not assigned' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

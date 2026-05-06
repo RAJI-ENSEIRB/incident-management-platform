@@ -1,0 +1,61 @@
+<div class="page">
+    <div class="page-header">
+      <h1>Category Management</h1>
+      <div class="header-actions">
+        <button class="btn-primary" (click)="openCreateForm()">+ New Category</button>
+        <button class="btn-secondary" (click)="goBack()">Back to Tickets</button>
+      </div>
+    </div>
+
+    <p *ngIf="isLoading" class="loading-text">Loading categories...</p>
+    <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+
+    <!-- FORM MODAL -->
+    <div class="modal-overlay" *ngIf="showForm">
+      <div class="modal">
+        <h2>{{ isEditMode ? 'Edit Category' : 'New Category' }}</h2>
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" [(ngModel)]="formData.name" placeholder="Category name" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea [(ngModel)]="formData.description" rows="3" placeholder="Optional description"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-primary" (click)="submitForm()">
+            {{ isEditMode ? 'Save' : 'Create' }}
+          </button>
+          <button class="btn-secondary" (click)="closeForm()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-container" *ngIf="!isLoading && !errorMessage">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cat of categories">
+            <td>{{ cat.id }}</td>
+            <td><strong>{{ cat.name }}</strong></td>
+            <td class="description">{{ cat.description || '—' }}</td>
+            <td class="actions">
+              <button class="btn-action edit" (click)="openEditForm(cat)">Edit</button>
+              <button class="btn-action delete" (click)="deleteCategory(cat)">Delete</button>
+            </td>
+          </tr>
+          <tr *ngIf="categories.length === 0">
+            <td colspan="4" class="empty">No categories found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
